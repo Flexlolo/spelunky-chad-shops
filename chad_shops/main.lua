@@ -1,31 +1,108 @@
 meta.name = "Chad Shops"
 meta.description = [[Customizable 1-2 shop for speedrunning]]
-meta.version = "1.0.0"
+meta.version = "1.1.0"
 meta.author = "Flexlolo"
 
 local Ordered_Options = require "ordered_options"
+local ordered_options
 
-local ITEM_SETS = {
-	SET_01 = { display_name = "Any%", items = {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_TELEPORTER, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_COMPASS} },
-	SET_02 = { display_name = "Any% NoTP", items = {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_MATTOCK, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_COMPASS} },
-	SET_03 = { display_name = "Any% NoTP NG", items = {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_MATTOCK, ENT_TYPE.ITEM_PICKUP_SPECTACLES, ENT_TYPE.ITEM_PICKUP_COMPASS} },
-	SET_04 = { display_name = "CO%", items = {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_BOMBBOX} },
-	SET_05 = { display_name = "Duat%", items = {ENT_TYPE.ITEM_PURCHASABLE_TELEPORTER_BACKPACK, ENT_TYPE.ITEM_TELEPORTER, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_BOMBBOX} },
-}
+local ITEM_SETS = {}
+local ITEM_SETS_ORDER = {}
 
-local ITEM_SETS_ORDER = {
-	"SET_01",
-	"SET_02",
-	"SET_03",
-	"SET_04",
-	"SET_05"
-}
+local PRESENT_ITEMS = {}
+local PRESENT_ITEMS_ORDER = {}
+
+-- really?
+local function get_table_size(table)
+  local count = 0
+  for _ in pairs(table) do count = count + 1 end
+  return count
+end
+
+local function add_item_set(name, items)
+	table.insert(ITEM_SETS, {display_name=name, items=items})
+	table.insert(ITEM_SETS_ORDER, get_table_size(ITEM_SETS))
+end
+
+local function add_present_item(name, item)
+	table.insert(PRESENT_ITEMS, {display_name=name, item=item})
+	table.insert(PRESENT_ITEMS_ORDER, get_table_size(PRESENT_ITEMS))
+end
+
+add_item_set("JP TP BB Compass", {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_TELEPORTER, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_COMPASS})
+add_item_set("JP MTK BB Compass", {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_MATTOCK, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_COMPASS})
+add_item_set("JP MTK Specs Compass", {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_MATTOCK, ENT_TYPE.ITEM_PICKUP_SPECTACLES, ENT_TYPE.ITEM_PICKUP_COMPASS})
+add_item_set("JP BB BB BB", {ENT_TYPE.ITEM_PURCHASABLE_JETPACK, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_BOMBBOX})
+add_item_set("TPP TP BB Compass", {ENT_TYPE.ITEM_PURCHASABLE_TELEPORTER_BACKPACK, ENT_TYPE.ITEM_TELEPORTER, ENT_TYPE.ITEM_PICKUP_BOMBBOX, ENT_TYPE.ITEM_PICKUP_BOMBBOX})
+add_item_set("CG Springs Spikes Mitt", {ENT_TYPE.ITEM_PICKUP_CLIMBINGGLOVES, ENT_TYPE.ITEM_PICKUP_SPRINGSHOES, ENT_TYPE.ITEM_PICKUP_SPIKESHOES, ENT_TYPE.ITEM_PICKUP_PITCHERSMITT})
+add_item_set("CG Springs Spikes Specs", {ENT_TYPE.ITEM_PICKUP_CLIMBINGGLOVES, ENT_TYPE.ITEM_PICKUP_SPRINGSHOES, ENT_TYPE.ITEM_PICKUP_SPIKESHOES, ENT_TYPE.ITEM_PICKUP_SPECTACLES})
+add_item_set("Cape Spikes Specs Ropes", {ENT_TYPE.ITEM_PURCHASABLE_CAPE, ENT_TYPE.ITEM_PICKUP_SPIKESHOES, ENT_TYPE.ITEM_PICKUP_SPECTACLES, ENT_TYPE.ITEM_PICKUP_ROPEPILE})
+
+add_present_item("Rope Pile", ENT_TYPE.ITEM_PICKUP_ROPEPILE)
+add_present_item("Bomb Bag", ENT_TYPE.ITEM_PICKUP_BOMBBAG)
+add_present_item("Bomb Box", ENT_TYPE.ITEM_PICKUP_BOMBBOX)
+add_present_item("Parachute", ENT_TYPE.ITEM_PICKUP_PARACHUTE)
+add_present_item("Spectacles", ENT_TYPE.ITEM_PICKUP_SPECTACLES)
+add_present_item("Climbing Gloves", ENT_TYPE.ITEM_PICKUP_CLIMBINGGLOVES)
+add_present_item("Pitcher's Mitt", ENT_TYPE.ITEM_PICKUP_PITCHERSMITT)
+add_present_item("Spring Shoes", ENT_TYPE.ITEM_PICKUP_SPRINGSHOES)
+add_present_item("Spike Shoes", ENT_TYPE.ITEM_PICKUP_SPIKESHOES)
+add_present_item("Paste", ENT_TYPE.ITEM_PICKUP_PASTE)
+add_present_item("Compass", ENT_TYPE.ITEM_PICKUP_COMPASS)
+add_present_item("Machete", ENT_TYPE.ITEM_MACHETE)
+add_present_item("Boomerang", ENT_TYPE.ITEM_BOOMERANG)
+add_present_item("Mattock", ENT_TYPE.ITEM_MATTOCK)
+add_present_item("Camera", ENT_TYPE.ITEM_CAMERA)
+add_present_item("Teleporter", ENT_TYPE.ITEM_TELEPORTER)
+add_present_item("Crossbow", ENT_TYPE.ITEM_CROSSBOW)
+add_present_item("Freeze Ray", ENT_TYPE.ITEM_FREEZERAY)
+add_present_item("Shotgun", ENT_TYPE.ITEM_SHOTGUN)
+add_present_item("Cape", ENT_TYPE.ITEM_CAPE)
+add_present_item("Jetpack", ENT_TYPE.ITEM_JETPACK)
+add_present_item("Powerpack", ENT_TYPE.ITEM_POWERPACK)
+add_present_item("Royal Jelly", ENT_TYPE.ITEM_PICKUP_ROYALJELLY)
+add_present_item("Plasma Cannon", ENT_TYPE.ITEM_PLASMACANNON)
 
 local DEFAULT_OPTION_VALUES = {
-	item_set = "SET_01",
+	item_set = 1,
+	present = false,
+	present_item = 1
 }
 
-local ordered_options
+local SHOP_ITEM_LIST = {
+	ENT_TYPE.ITEM_PICKUP_ROPEPILE, 
+	ENT_TYPE.ITEM_PICKUP_BOMBBAG, 
+	ENT_TYPE.ITEM_PICKUP_BOMBBOX, 
+	ENT_TYPE.ITEM_PICKUP_PARACHUTE, 
+	ENT_TYPE.ITEM_PICKUP_SPECTACLES, 
+	ENT_TYPE.ITEM_PICKUP_SKELETON_KEY, 
+	ENT_TYPE.ITEM_PICKUP_COMPASS, 
+	ENT_TYPE.ITEM_PICKUP_SPRINGSHOES, 
+	ENT_TYPE.ITEM_PICKUP_SPIKESHOES, 
+	ENT_TYPE.ITEM_PICKUP_PASTE, 
+	ENT_TYPE.ITEM_PICKUP_PITCHERSMITT, 
+	ENT_TYPE.ITEM_PICKUP_CLIMBINGGLOVES, 
+	ENT_TYPE.ITEM_WEBGUN, 
+	ENT_TYPE.ITEM_MACHETE, 
+	ENT_TYPE.ITEM_BOOMERANG, 
+	ENT_TYPE.ITEM_CAMERA, 
+	ENT_TYPE.ITEM_MATTOCK, 
+	ENT_TYPE.ITEM_TELEPORTER, 
+	ENT_TYPE.ITEM_FREEZERAY, 
+	ENT_TYPE.ITEM_METAL_SHIELD, 
+	ENT_TYPE.ITEM_PURCHASABLE_CAPE, 
+	ENT_TYPE.ITEM_PURCHASABLE_HOVERPACK, 
+	ENT_TYPE.ITEM_PURCHASABLE_TELEPORTER_BACKPACK, 
+	ENT_TYPE.ITEM_PURCHASABLE_POWERPACK, 
+	ENT_TYPE.ITEM_PURCHASABLE_JETPACK, 
+	ENT_TYPE.ITEM_PRESENT, 
+
+	ENT_TYPE.ITEM_SHOTGUN, 
+	ENT_TYPE.ITEM_PLASMACANNON, 
+	ENT_TYPE.ITEM_FREEZERAY, 
+	ENT_TYPE.ITEM_WEBGUN, 
+	ENT_TYPE.ITEM_CROSSBOW,
+}
 
 -- Merges two tables. If both tables contain the same key, then the value from table2 is used. A nil table is handled as though it were an empty table.
 local function merge_tables(table1, table2)
@@ -72,61 +149,27 @@ local shop_rooms_right = {
 
 local shop_rooms = join(shop_rooms_left, shop_rooms_right)
 
-local shop_items = {
-	ENT_TYPE.ITEM_PICKUP_ROPEPILE, 
-	ENT_TYPE.ITEM_PICKUP_BOMBBAG, 
-	ENT_TYPE.ITEM_PICKUP_BOMBBOX, 
-	ENT_TYPE.ITEM_PICKUP_PARACHUTE, 
-	ENT_TYPE.ITEM_PICKUP_SPECTACLES, 
-	ENT_TYPE.ITEM_PICKUP_SKELETON_KEY, 
-	ENT_TYPE.ITEM_PICKUP_COMPASS, 
-	ENT_TYPE.ITEM_PICKUP_SPRINGSHOES, 
-	ENT_TYPE.ITEM_PICKUP_SPIKESHOES, 
-	ENT_TYPE.ITEM_PICKUP_PASTE, 
-	ENT_TYPE.ITEM_PICKUP_PITCHERSMITT, 
-	ENT_TYPE.ITEM_PICKUP_CLIMBINGGLOVES, 
-	ENT_TYPE.ITEM_WEBGUN, 
-	ENT_TYPE.ITEM_MACHETE, 
-	ENT_TYPE.ITEM_BOOMERANG, 
-	ENT_TYPE.ITEM_CAMERA, 
-	ENT_TYPE.ITEM_MATTOCK, 
-	ENT_TYPE.ITEM_TELEPORTER, 
-	ENT_TYPE.ITEM_FREEZERAY, 
-	ENT_TYPE.ITEM_METAL_SHIELD, 
-	ENT_TYPE.ITEM_PURCHASABLE_CAPE, 
-	ENT_TYPE.ITEM_PURCHASABLE_HOVERPACK, 
-	ENT_TYPE.ITEM_PURCHASABLE_TELEPORTER_BACKPACK, 
-	ENT_TYPE.ITEM_PURCHASABLE_POWERPACK, 
-	ENT_TYPE.ITEM_PURCHASABLE_JETPACK, 
-	ENT_TYPE.ITEM_PRESENT, 
-	ENT_TYPE.ITEM_PICKUP_HEDJET, 
-	ENT_TYPE.ITEM_PICKUP_ROYALJELLY, 
-	ENT_TYPE.ITEM_ROCK, 
-	ENT_TYPE.ITEM_SKULL, 
-	ENT_TYPE.ITEM_POT, 
-	ENT_TYPE.ITEM_WOODEN_ARROW, 
-	ENT_TYPE.ITEM_PICKUP_COOKEDTURKEY,
-
-	ENT_TYPE.ITEM_SHOTGUN, 
-	ENT_TYPE.ITEM_PLASMACANNON, 
-	ENT_TYPE.ITEM_FREEZERAY, 
-	ENT_TYPE.ITEM_WEBGUN, 
-	ENT_TYPE.ITEM_CROSSBOW,
-}
-
-set_pre_entity_spawn(function(type, x, y, l, overlay)
+set_pre_entity_spawn(function(type, x, y, layer, overlay)
 	local rx, ry = get_room_index(x, y)
-	local roomtype = get_room_template(rx, ry, l)
-	if state.theme == THEME.DWELLING and state.level == 2 then
+	local roomtype = get_room_template(rx, ry, layer)
+	if state.theme == THEME.DWELLING and state.level == 2 and layer == LAYER.FRONT then
 		if has(shop_rooms, roomtype) then
-			local items = ITEM_SETS[ordered_options:get_value("item_set")].items
-			local eid = items[math.floor(x) % 4 + 1]
-			return spawn_entity_nonreplaceable(eid, x, y, l, 0, 0)
+			local index = math.floor(x) % 4 + 1
+			local eid
+			if ordered_options:get_value("present") and index == 4 then
+				eid = spawn_entity_nonreplaceable(ENT_TYPE.ITEM_PRESENT, x, y, layer, 0, 0)
+				local entity = get_entity(eid)
+				entity.inside = PRESENT_ITEMS[ordered_options:get_value("present_item")].item
+			else
+				local items = ITEM_SETS[ordered_options:get_value("item_set")].items
+				eid = spawn_entity_nonreplaceable(items[index], x, y, layer, 0, 0)
+			end
+
+			return eid
 		end
 	end
-	return spawn_entity_nonreplaceable(type, x, y, l, 0, 0)
-end, SPAWN_TYPE.LEVEL_GEN, MASK.ITEM, shop_items)
-
+	return spawn_entity_nonreplaceable(type, x, y, layer, 0, 0)
+end, SPAWN_TYPE.LEVEL_GEN, MASK.ITEM, SHOP_ITEM_LIST)
 
 set_callback(function(ctx)
 	if state.screen ~= SCREEN.LEVEL then return end
@@ -143,7 +186,7 @@ set_callback(function(ctx)
 					ry = ry - 3.0
 
 					if is_right then
-						rx = rx + 8.0
+						rx = rx + 9.0
 					else
 						rx = rx + 1.0
 					end
@@ -156,13 +199,6 @@ set_callback(function(ctx)
 	end
 end, ON.LOADING)
 
-set_pre_tile_code_callback(function(x, y, layer, room_template)
-	if state.theme == THEME.DWELLING and state.level == 2 then
-		spawn_grid_entity(ENT_TYPE.FLOOR_GENERIC, x, y, layer)
-		return true
-	end
-end, "shop_sign")
-
 local function register_options(initial_values)
 	ordered_options = Ordered_Options:new(merge_tables(DEFAULT_OPTION_VALUES, initial_values))
 
@@ -170,6 +206,14 @@ local function register_options(initial_values)
 		"Select shop item set",
 		"",
 		ITEM_SETS, ITEM_SETS_ORDER)
+
+	ordered_options:register_option_bool("present",
+        "Replace last shop item with present", "")
+
+	ordered_options:register_option_combo("present_item",
+		"Set present content",
+		"",
+		PRESENT_ITEMS, PRESENT_ITEMS_ORDER)
 end
 
 set_callback(function(ctx)
