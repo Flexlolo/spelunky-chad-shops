@@ -1,6 +1,6 @@
 meta.name = "Chad Shops"
 meta.description = [[Customizable 1-2 shop for speedrunning]]
-meta.version = "1.1.0"
+meta.version = "1.1.1"
 meta.author = "Flexlolo"
 
 local Ordered_Options = require "ordered_options"
@@ -168,7 +168,6 @@ set_pre_entity_spawn(function(type, x, y, layer, overlay)
 			return eid
 		end
 	end
-	return spawn_entity_nonreplaceable(type, x, y, layer, 0, 0)
 end, SPAWN_TYPE.LEVEL_GEN, MASK.ITEM, SHOP_ITEM_LIST)
 
 set_callback(function(ctx)
